@@ -28,7 +28,7 @@ class Client():
                     raise Exception("server has no incoming messages")
                 # TODO: check data validity here for if statement?
                 self.messages.append(data)
-                msg = self.create_message("AE")
+                msg = self.create_message("AA")
                 s.sendall(msg) # send message to server
                 print(f"Received {data!r}")
 
