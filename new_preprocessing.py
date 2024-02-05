@@ -67,7 +67,7 @@ def new_preprocessing(system_dict, database_dict):
             min_measurement = min(database_dict.get('min_measurement', new_measurement), new_measurement) #retrieves the min_measurement from database, using "new_measurement" as the default value if min_measurement doesn't exist in the dict
             database_dict.update({'min_measurement': min_measurement})
             database_dict.update({'num_of_tests': num_of_tests+1 })
-
+        print("edw", database_dict)
         return {
             "age": age,
             "sex": sex, 
