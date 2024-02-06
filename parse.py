@@ -39,7 +39,7 @@ def parse_hl7_message(hl7_message: str) -> dict:
         if obx3 == "CREATININE":
             # Time of test
             obr7 = str(message.segments('OBR')[0][7])
-            obr7 = datetime.strptime(obr7, '%Y%m%d%H%M')
+            obr7 = datetime.strptime(obr7, '%Y%m%d%H%M%S')
             # Creatinine result
             obx5 = float(message.segments('OBX')[0][5][0])
             return {'type': 'LIMS', 'mrn': pid3, 'time': obr7, 'result': obx5}
