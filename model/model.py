@@ -7,7 +7,7 @@ from preprocess_data import data_preprocessing
 import pickle
 
 
-def main():
+def test():
 
     # Step 1: load the test csv which will be used to make predictions and open a csv file to store the output
     print("Loading the test csv...")
