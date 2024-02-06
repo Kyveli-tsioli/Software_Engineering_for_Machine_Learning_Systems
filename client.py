@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+from new_preprocessing import new_preprocessing
+from parse import *
 import argparse
 import socket
 import threading
@@ -16,7 +17,7 @@ MLLP_CARRIAGE_RETURN = 0x0d
 
 class Client():
     def __init__(self) -> None:
-        self.messages = []
+        #self.messages = []
 
     def connect_to_server(self, host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -27,7 +28,20 @@ class Client():
                 if len(data) == 0:
                     raise Exception("server has no incoming messages")
                 # TODO: check data validity here for if statement?
-                self.messages.append(data)
+                #self.messages.append(data)
+
+                timer.start()
+                parsed_dict = parse_hl7_message(data)
+                if parsed_dict["type"] == 'PAS':
+                    # TODO: write query
+                    self.save_query_db(parsed_dict)
+                elif parsed_dict["type"] == 'LIMS':
+                    dict = self.retrieve_query_db(parsed_dict["mrn"])
+                    features = new_preprocessing(parsed_dict, dict)
+                    prediction = test(features)
+                    if prediction == 'y':
+                        page_request(host, port, parsed_dict["mrn"])
+                    self.update_query_db(parsed_dict)
                 msg = self.create_message("AA")
                 s.sendall(msg) # send message to server
                 print(f"Received {data!r}")
@@ -44,9 +58,18 @@ class Client():
         msg += bytes(chr(MLLP_END_OF_BLOCK) + chr(MLLP_CARRIAGE_RETURN), "ascii")
         return msg
 
-def page_request(host, port):
+    # TODO
+    def save_query_db(self):
+        return 0
+
+    # TODO
+    def retrieve_query_db(self):
+        return 0
+
+
+def page_request(host, port, mrn):
     url = f"http://{host}:{port}/page"
-    requests.post(url, data="1111")
+    requests.post(url, data=mrn)
 
 
 def main():
