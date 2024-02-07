@@ -41,8 +41,8 @@ def new_preprocessing(system_dict, database_dict):
 
         #Retrieve sex from MongoDB and preprocess it 
         sex= database_dict.get('sex')
-        assert (sex == 'm' or sex == 'f'), "patient's gender is not male or female"
-        sex = (0 if sex == 'm' else 1)  #what if 'M' or 'F' instead of 'm'/'f'???
+        assert (sex == 'M' or sex == 'F'), "patient's gender is not male or female"
+        sex = (0 if sex == 'M' else 1)  #what if 'M' or 'F' instead of 'm'/'f'???
 
 
         #Check existence of historical data in MongoDB, if values are set to 'None' then replace them with the last measurement from LIMS
@@ -99,15 +99,15 @@ def new_preprocessing(system_dict, database_dict):
 
 
 #BELOW IS JUST FOR TESTING
-obr7="202302041530"
-obr7db="19960913"
-obr7db=datetime.strptime(obr7db, '%Y%m%d') #maybe string?
-obr7 = datetime.strptime(obr7, '%Y%m%d%H%M') 
-trial_lims= {'type': 'LIMS', 'mrn': 132, 'time': obr7, 'result': 123}
-trial_pas= {'type': 'PAS', 'mrn': 151, 'dob': obr7db, 'sex': 'M'}
-trial_database_dict= {'mrn': 132, 'dob': obr7db, 'sex': 'f', 'min_measurement': None, 'mean_measurement': None, 'num_of_tests': None} 
-trial_run= new_preprocessing(trial_lims, trial_database_dict)
-print(trial_run)
+# obr7="202302041530"
+# obr7db="19960913"
+# obr7db=datetime.strptime(obr7db, '%Y%m%d') #maybe string?
+# obr7 = datetime.strptime(obr7, '%Y%m%d%H%M')
+# trial_lims= {'type': 'LIMS', 'mrn': 132, 'time': obr7, 'result': 123}
+# trial_pas= {'type': 'PAS', 'mrn': 151, 'dob': obr7db, 'sex': 'M'}
+# trial_database_dict= {'mrn': 132, 'dob': obr7db, 'sex': 'f', 'min_measurement': None, 'mean_measurement': None, 'num_of_tests': None}
+# trial_run= new_preprocessing(trial_lims, trial_database_dict)
+# print(trial_run)
 
 
 
