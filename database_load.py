@@ -10,13 +10,15 @@ c.execute("""DROP TABLE patients""")
 c.execute("""DROP TABLE measurements""")
 c.execute("""CREATE TABLE patients (
             _mrn integer,
-            age integer,
-            gender integer
+            dob text,
+            sex text,
+            PRIMARY KEY (_mrn)
             )""")
 c.execute("""CREATE TABLE measurements (
             _mrn integer,
             date text,
-            value real
+            value real,
+            PRIMARY KEY (_mrn, date, value)
             )""")
 
 with open('./data/history.csv', 'r') as file:
@@ -31,8 +33,8 @@ with open('./data/history.csv', 'r') as file:
         patient_data.pop(0)
 
         with conn:
-            c.execute("INSERT INTO patients VALUES (:_mrn, :age, :gender)",
-                      {'_mrn': mrn, 'age': None, 'gender': None})
+            c.execute("INSERT INTO patients VALUES (:_mrn, :dob, :sex)",
+                      {'_mrn': mrn, 'dob': None, 'sex': None})
 
         for measurement_idx in range(0, len(patient_data), 2):
             try:
