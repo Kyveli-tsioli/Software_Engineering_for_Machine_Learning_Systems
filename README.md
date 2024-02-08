@@ -1,4 +1,4 @@
-# SWEMLS: Coursework 1: Training
+# SWEMLS: Coursework 3: Implementing inference
 
 ### Modelling
 
@@ -28,4 +28,10 @@ To run the code, follow these steps:
    
 This will connect a client to the default ports for MLLP (8440) and pager (8441) systems. In order
 to customize the port numbers, please pass in new values for environment variables ```MLLP_ADDRESS```
-and ```PAGER_ADDRESS``` when running the docker.
+and ```PAGER_ADDRESS``` when running the docker, i.e. 
+``` 
+docker run \
+--env MLLP_ADDRESS=host.docker.internal:8440 \
+--env PAGER_ADDRESS=host.docker.internal:8441 \
+coursework3
+```
