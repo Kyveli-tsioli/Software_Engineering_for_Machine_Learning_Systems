@@ -15,8 +15,8 @@ class TestPager(unittest.TestCase):
     def test_pager_res(self):
         # read in aki
         col_names = ['mrn', 'date']
-        true_paged = pd.read_csv('tests/aki.csv', header=None, delimiter=',', names=col_names)
-        client_paged = pd.read_csv('tests/preds.csv', header=None, delimiter=',', names=col_names)
+        true_paged = pd.read_csv('/data/aki.csv', header=None, delimiter=',', names=col_names)
+        client_paged = pd.read_csv('/data/preds.csv', header=None, delimiter=',', names=col_names)
         df = pd.merge(true_paged, client_paged, on=col_names, how='outer', indicator=True)
         tp = (df['_merge'] == 'both').sum()
         fn = (df['_merge'] == 'left_only').sum() # FN: in true but not paged

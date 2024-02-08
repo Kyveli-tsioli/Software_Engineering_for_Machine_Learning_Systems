@@ -3,14 +3,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python3
 COPY requirements.txt /model/
 RUN pip3 install -r /model/requirements.txt
 
-COPY model/model.py /model/
-COPY model/preprocess_data.py /model/
 COPY model/train.py /model/
 COPY model/trained_model.sav /model/
 
 COPY parse.py /simulator/
 COPY patients.db /simulator/
-COPY tests/aki.csv /simulator/
+COPY data/aki.csv /data/
 COPY preprocessing.py /simulator/
 COPY client.py /simulator/
 COPY simulator.py /simulator/
