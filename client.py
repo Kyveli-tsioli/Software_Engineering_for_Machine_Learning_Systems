@@ -40,8 +40,8 @@ class Client():
                 data = s.recv(MLLP_BUFFER_SIZE) # reads server message
                 if len(data) == 0:
                     df = pd.DataFrame(list(zip(paged, dates)), columns =['mrn', 'date']) 
-                    df.to_csv("tests/preds.csv", header=['mrn', 'date'], index=False)    
-                    raise Exception("server has no incoming messages")
+                    df.to_csv("/data/preds.csv", header=['mrn', 'date'], index=False)    
+                    break
                 parsed_dict = parse_hl7_message(data)
                 # avoid discharge messages that return None
                 if parsed_dict != None:
@@ -59,7 +59,7 @@ class Client():
                             dates.append(parsed_dict["time"])
                         self.update_query_db(conn, c, parsed_dict)
                         t1 = time.time()
-                        print("latency = ", t1-t0)
+                        # print("latency = ", t1-t0)
                 msg = self.create_message("AA")
                 s.sendall(msg) # send message to server
                 # print(f"Received {data!r}")
@@ -154,7 +154,6 @@ def main():
     mllp = os.environ['MLLP_ADDRESS']
     pager = os.environ['PAGER_ADDRESS']
     print(mllp)
-    print(4)
     mllp_host, mllp_port = split_host_port(mllp)
     pager_host, pager_port = split_host_port(pager)
     client = Client()
