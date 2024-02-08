@@ -22,11 +22,10 @@ computations, like finding the mean and median of measurements.
 
 To run the code, follow these steps:
 
-1. ```tar xzvf coursework1.tar.gz```
+1. ```docker build -t coursework3 .```
 
-2. ```docker build -t coursework1 .```
-
-3. ```docker run -v /south-riverside/aki/data:/data coursework1```
+2. ```docker run coursework3```
    
-where the path ```/south-riverside/aki/data``` needs to be replaced with the local folder where
-the test data is stored. The output predictions will be stored at ```/data/aki.csv```.
+This will connect a client to the default ports for MLLP (8440) and pager (8441) systems. In order
+to customize the port numbers, please pass in new values for environment variables ```MLLP_ADDRESS```
+and ```PAGER_ADDRESS``` when running the docker.

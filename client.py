@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
+# Relevant custom modules
 from preprocessing import preprocess
 from parse import *
-import argparse
+
+# Standard libraries
 import socket
 from datetime import datetime
-import requests
-import sqlite3
 import time
+import urllib.request
+import os
+
+# Machine learning libraries
+import sqlite3
 import pickle
 import numpy as np
-import urllib
-import os
-import pandas as pd
 
-VERSION = "0.0.0"
 
 MLLP_BUFFER_SIZE = 1024
 MLLP_START_OF_BLOCK = 0x0b
 MLLP_END_OF_BLOCK = 0x1c
 MLLP_CARRIAGE_RETURN = 0x0d
-# MLLP_ADDRESS="localhost:8440"
-# PAGER_ADDRESS="localhost:8441"
 
 class Client():
     def __init__(self) -> None:
@@ -28,46 +27,46 @@ class Client():
 
     def connect_to_server(self, host, port, pager_host, pager_port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-
+            # load pre-trained model for inference
             trained_model = pickle.load(open('/model/trained_model.sav', 'rb'))
-            s.connect((host, port)) # connect with host
+            s.connect((host, port))
+            # connect with database containing historical data
             conn = sqlite3.connect('./patients.db', uri=True)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
-            paged = []
-            dates = []
             while True:
-                data = s.recv(MLLP_BUFFER_SIZE) # reads server message
+                data = s.recv(MLLP_BUFFER_SIZE)
                 if len(data) == 0:
-                    df = pd.DataFrame(list(zip(paged, dates)), columns =['mrn', 'date']) 
-                    df.to_csv("/data/preds.csv", header=['mrn', 'date'], index=False)    
+                    print("No incoming messages.")
                     break
                 parsed_dict = parse_hl7_message(data)
-                # avoid discharge messages that return None
+                # Disregard discharge messages that return None
                 if parsed_dict != None:
                     if parsed_dict["type"] == 'PAS':
+                        # Save information to database
                         self.save_query_db(conn, c, parsed_dict)
                     elif parsed_dict["type"] == 'LIMS':
                         t0 = time.time()
+                        # Retrieve patient information from database using "mrn"
                         dict = self.retrieve_query_db(conn, c, parsed_dict["mrn"])
                         features = preprocess(parsed_dict, dict)
                         features = np.array(list(features.values())).reshape(1,-1)
                         prediction = 'n' if trained_model.predict(features)==0 else 'y'
                         if prediction == 'y':
+                            # Send page request if inferred AKI
                             page_request(pager_host, pager_port, bytes(str(parsed_dict["mrn"]), "ascii"))
-                            paged.append(parsed_dict["mrn"])
-                            dates.append(parsed_dict["time"])
+                        # Update test result to database
                         self.update_query_db(conn, c, parsed_dict)
                         t1 = time.time()
                         # print("latency = ", t1-t0)
+                # Send message acknowledgement to server
                 msg = self.create_message("AA")
-                s.sendall(msg) # send message to server
-                # print(f"Received {data!r}")
+                s.sendall(msg)
             conn.close()
 
     def create_message(self, msg_type):
         """
-        Returns bytearray of the message to send depending on msg_type
+        Returns bytearray of the message to send depending on msg_type.
         """
         msg = bytes(chr(MLLP_START_OF_BLOCK), "ascii")
         curr_time = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -125,17 +124,26 @@ class Client():
                     parsed_dict['result'])
             c.execute(sql_statement, data)
 
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
 
+
 def page_request(host, port, mrn):
+    """
+    Sends a request with mrn to pager at host:port.
+    """
     url = f"http://{host}:{port}/page"
-    requests.post(url, data=mrn)
+    urllib.request.urlopen(url, data=mrn)
+
 
 def split_host_port(string):
+    """
+    Splits string 'host:port' into host and port values.
+    """
     if not string.rsplit(':', 1)[-1].isdigit():
         return string, None
     string = string.rsplit(':', 1)
@@ -147,19 +155,11 @@ def split_host_port(string):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("--mllp", default=MLLP_ADDRESS, type=int, help="Port for server")
-    # parser.add_argument("--pager", default=PAGER_ADDRESS, type=int, help="Post on which to listen for pager requests via HTTP")
-    # flags = parser.parse_args()
-    mllp = os.environ['MLLP_ADDRESS']
-    pager = os.environ['PAGER_ADDRESS']
-    print(mllp)
-    mllp_host, mllp_port = split_host_port(mllp)
-    pager_host, pager_port = split_host_port(pager)
+    mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
+    pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
     client = Client()
     client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
 
 if __name__ == "__main__":
-    # to kill port: lsof -i :PORT_NUM then kill PID
     main()
 
