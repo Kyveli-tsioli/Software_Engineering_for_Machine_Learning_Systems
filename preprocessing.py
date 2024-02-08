@@ -14,7 +14,7 @@ def preprocess(system_dict, database_dict):
         - 'time': The time of the test (LIMS only). (type: datetime)
         - 'result': The test result (LIMS only). (type: float)
 
-        database_dict: A dictionary from MongoDB with the following keys:
+        database_dict: A dictionary from SQLite with the following keys:
         - 'mrn': The patient's medical record number. (type: int)
         - 'dob': The patient's date of birth (PAS only). (type: datetime)
         - 'sex': The patient's sex (PAS only). (type: str)
@@ -36,16 +36,17 @@ def preprocess(system_dict, database_dict):
     
     if system_dict.get('type')== 'LIMS': #Identify if PAS or LIMS 
 
-        #Assuming datetime objects in both PAS and MongoDB,  %Y%m%d%H%M' format in LIMS (testtime), '%Y%m%d' in MongoDB (dob)
+        #Assuming datetime objects in both PAS and SQLite,  %Y%m%d%H%M' format in LIMS (testtime), '%Y%m%d' in SQLite (dob)
         age= int((system_dict.get('time') - database_dict.get('dob')).days/365) 
+        
 
-        #Retrieve sex from MongoDB and preprocess it 
+        #Retrieve sex from SQLite and preprocess it 
         sex= database_dict.get('sex')
         assert (sex == 'M' or sex == 'F'), "patient's gender is not male or female"
         sex = (0 if sex == 'M' else 1)  #what if 'M' or 'F' instead of 'm'/'f'???
 
 
-        #Check existence of historical data in MongoDB, if values are set to 'None' then replace them with the last measurement from LIMS
+        #Check existence of historical data in SQLite, if values are set to 'None' then replace them with the last measurement from LIMS
         min_measurement, mean_measurement = database_dict.get('min_measurement'), database_dict.get('mean_measurement')
         all_none= all(value is None for value in [min_measurement, mean_measurement])
 
@@ -63,7 +64,7 @@ def preprocess(system_dict, database_dict):
             #Retrieve latest (new) measurement
             num_of_tests = database_dict.get('num_of_tests')  # Provide default value to avoid NoneType
 
-            #Update mean and min values and number of tests taken (in MongoDB)
+            #Update mean and min values and number of tests taken (in database)
             mean_measurement = (num_of_tests * mean_measurement + new_measurement) / (num_of_tests + 1)
             database_dict.update({'mean_measurement': mean_measurement})
             min_measurement = min(database_dict.get('min_measurement'), new_measurement) #retrieves the min_measurement from database, using "new_measurement" as the default value if min_measurement doesn't exist in the dict
