@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from preprocessing import preprocessing
+from preprocessing import preprocess
 from parse import *
 import argparse
 import socket
@@ -29,7 +29,7 @@ class Client():
     def connect_to_server(self, host, port, pager_host, pager_port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
-            trained_model = pickle.load(open('model/trained_model.sav', 'rb'))
+            trained_model = pickle.load(open('/model/trained_model.sav', 'rb'))
             s.connect((host, port)) # connect with host
             conn = sqlite3.connect('./patients.db', uri=True)
             conn.row_factory = sqlite3.Row
@@ -50,7 +50,7 @@ class Client():
                     elif parsed_dict["type"] == 'LIMS':
                         t0 = time.time()
                         dict = self.retrieve_query_db(conn, c, parsed_dict["mrn"])
-                        features = preprocessing(parsed_dict, dict)
+                        features = preprocess(parsed_dict, dict)
                         features = np.array(list(features.values())).reshape(1,-1)
                         prediction = 'n' if trained_model.predict(features)==0 else 'y'
                         if prediction == 'y':
@@ -153,6 +153,8 @@ def main():
     # flags = parser.parse_args()
     mllp = os.environ['MLLP_ADDRESS']
     pager = os.environ['PAGER_ADDRESS']
+    print(mllp)
+    print(4)
     mllp_host, mllp_port = split_host_port(mllp)
     pager_host, pager_port = split_host_port(pager)
     client = Client()
