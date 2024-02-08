@@ -3,7 +3,7 @@ from datetime import datetime
 import numpy as np
 
 
-def new_preprocessing(system_dict, database_dict):
+def preprocessing(system_dict, database_dict):
     """Prepares the input to the logistic regression model.
     Args:
         system_dict: A dictionary (from PAS or LIMS system) with the following keys:
