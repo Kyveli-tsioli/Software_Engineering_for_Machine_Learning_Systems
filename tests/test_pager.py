@@ -4,7 +4,8 @@ import unittest
 import pandas as pd
 
 class TestPager(unittest.TestCase):
-    """Testing the pager."""
+    """Testing the pager. 'preds.csv' contains the mrn and date 
+    of paged patients and is obtained when running client."""
     def test_pager_res(self):
         # read in aki
         col_names = ['mrn', 'date']
