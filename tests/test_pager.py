@@ -1,22 +1,15 @@
 """Testing the pager module."""
 
-import sys
-import os
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import unittest
-from datetime import datetime
-import client
 import pandas as pd
-import numpy as np
 
 class TestPager(unittest.TestCase):
     """Testing the pager."""
     def test_pager_res(self):
         # read in aki
         col_names = ['mrn', 'date']
-        true_paged = pd.read_csv('/data/aki.csv', header=None, delimiter=',', names=col_names)
-        client_paged = pd.read_csv('/data/preds.csv', header=None, delimiter=',', names=col_names)
+        true_paged = pd.read_csv('../data/aki.csv', header=None, delimiter=',', names=col_names)
+        client_paged = pd.read_csv('../data/preds.csv', header=None, delimiter=',', names=col_names)
         df = pd.merge(true_paged, client_paged, on=col_names, how='outer', indicator=True)
         tp = (df['_merge'] == 'both').sum()
         fn = (df['_merge'] == 'left_only').sum() # FN: in true but not paged
@@ -25,6 +18,7 @@ class TestPager(unittest.TestCase):
         print("False negative:", fn)
         print("False positive:", fp)
         score = calc_score(tp, fn, fp, 3)
+        assert score > 0.8
         print(score)
         return
 
