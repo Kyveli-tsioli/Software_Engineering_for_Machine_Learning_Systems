@@ -6,8 +6,10 @@ RUN pip3 install -r /model/requirements.txt
 COPY model/train.py /model/
 COPY model/trained_model_rf.sav /model/
 
+COPY data/history.csv /data/
+COPY database_load.py /client/
 COPY parse.py /client/
-COPY database/patients.db /client/
+COPY patients.db /client/
 COPY preprocessing.py /client/
 COPY client.py /client/
 
@@ -16,5 +18,6 @@ EXPOSE 8440
 EXPOSE 8441
 ENV MLLP_ADDRESS="host.docker.internal:8440"
 ENV PAGER_ADDRESS="host.docker.internal:8441"
-# RUN chmod +x /simulator/client.py
+RUN chmod +x /client/client.py
+# CMD /client/client.py --history=/data/history.csv
 CMD ["python3", "/client/client.py"]
