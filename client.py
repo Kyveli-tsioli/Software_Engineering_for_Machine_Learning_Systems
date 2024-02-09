@@ -30,7 +30,7 @@ class Client():
     def connect_to_server(self, host, port, pager_host, pager_port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # load pre-trained model for inference
-            trained_model = pickle.load(open('/model/trained_model_rf.sav', 'rb'))
+            trained_model = pickle.load(open('./model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
             # connect with database containing historical data
             conn = sqlite3.connect('./patients.db', uri=True)
@@ -48,7 +48,6 @@ class Client():
                         # Save information to database
                         self.save_query_db(conn, c, parsed_dict)
                     elif parsed_dict["type"] == 'LIMS':
-                        t0 = time.time()
                         # Retrieve patient information from database using "mrn"
                         dict = self.retrieve_query_db(conn, c, parsed_dict["mrn"])
                         features = preprocess(parsed_dict, dict)
@@ -59,8 +58,6 @@ class Client():
                             page_request(pager_host, pager_port, bytes(str(parsed_dict["mrn"]), "ascii"))
                         # Update test result to database
                         self.update_query_db(conn, c, parsed_dict)
-                        t1 = time.time()
-                        # print("latency = ", t1-t0)
                 # Send message acknowledgement to server
                 msg = self.create_message("AA")
                 s.sendall(msg)
@@ -96,9 +93,6 @@ class Client():
             c.execute("SELECT * FROM patients WHERE _mrn=:_mrn",
                       {'_mrn': _mrn})
             patient_data = dict(c.fetchall()[0])
-            # c.execute("SELECT MIN(value) AS min_measurement,"
-            #           " AVG(value) AS mean_measurement, COUNT(value) AS num_of_tests"
-            #           " FROM measurements WHERE _mrn=:_mrn", {'_mrn': _mrn})
             c.execute("SELECT value AS latest_measurement"
                       " FROM measurements WHERE _mrn=:_mrn"
                       " ORDER BY date DESC"
@@ -111,14 +105,6 @@ class Client():
             if patient_data['dob'] != None:
                 patient_data['dob'] = datetime.strptime(patient_data['dob'],
                                                         '%Y-%m-%d %H:%M:%S')
-            # db_dict = {
-            #     'mrn': patient_data['_mrn'],
-            #     'dob': patient_data['dob'],
-            #     'sex': patient_data['sex'],
-            #     'min_measurement': patient_history['min_measurement'],
-            #     'mean_measurement': patient_history['mean_measurement'],
-            #     'num_of_tests': patient_history['num_of_tests']
-            # }
             db_dict = {
                 'mrn': patient_data['_mrn'],
                 'dob': patient_data['dob'],
@@ -171,12 +157,9 @@ def split_host_port(string):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--history", default='/data/history.csv', help="Historical data for patients.")
-    flags = parser.parse_args()
     mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
     pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
-    database_load(flags.history)
+    database_load('/data/history.csv')
     client = Client()
     client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
 
