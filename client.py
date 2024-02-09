@@ -2,6 +2,7 @@
 # Relevant custom modules
 from preprocessing import preprocess
 from parse import *
+from database_load import database_load
 
 # Standard libraries
 import socket
@@ -9,6 +10,7 @@ from datetime import datetime
 import time
 import urllib.request
 import os
+import argparse
 
 # Machine learning libraries
 import sqlite3
@@ -25,12 +27,13 @@ class Client():
     def __init__(self) -> None:
         self.messages = []
 
-    def connect_to_server(self, host, port, pager_host, pager_port):
+    def connect_to_server(self, host, port, pager_host, pager_port, history_path):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # load pre-trained model for inference
             trained_model = pickle.load(open('/model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
             # connect with database containing historical data
+            database_load(history_path)
             conn = sqlite3.connect('./patients.db', uri=True)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
@@ -166,10 +169,13 @@ def split_host_port(string):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--history", default='/data/history.csv', help="Historical data for patients.")
+    flags = parser.parse_args()
     mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
     pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
     client = Client()
-    client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
+    client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port, flags.history)
 
 if __name__ == "__main__":
     main()
