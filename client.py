@@ -104,7 +104,10 @@ class Client():
                       " ORDER BY date DESC"
                       " LIMIT 1"
                       , {'_mrn': _mrn})
-            patient_history = dict(c.fetchall()[0])
+            try:
+                patient_history = dict(c.fetchall()[0])
+            except:
+                patient_history = {"latest_measurement": None}
             if patient_data['dob'] != None:
                 patient_data['dob'] = datetime.strptime(patient_data['dob'],
                                                         '%Y-%m-%d %H:%M:%S')
