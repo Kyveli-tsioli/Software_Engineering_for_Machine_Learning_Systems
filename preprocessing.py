@@ -43,7 +43,7 @@ def preprocess(system_dict, database_dict):
         #Retrieve sex from SQLite and preprocess it 
         sex= database_dict.get('sex')
         assert (sex == 'M' or sex == 'F'), "patient's gender is not male or female"
-        sex = (0 if sex == 'M' else 1)  #what if 'M' or 'F' instead of 'm'/'f'???
+        sex = (1 if sex == 'M' else 0)  #what if 'M' or 'F' instead of 'm'/'f'???
 
 
         #Check existence of historical data in SQLite, if values are set to 'None' then replace them with the last measurement from LIMS
