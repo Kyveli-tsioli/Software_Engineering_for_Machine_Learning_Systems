@@ -28,7 +28,7 @@ class Client():
     def connect_to_server(self, host, port, pager_host, pager_port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # load pre-trained model for inference
-            trained_model = pickle.load(open('/model/trained_model.sav', 'rb'))
+            trained_model = pickle.load(open('/model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
             # connect with database containing historical data
             conn = sqlite3.connect('./patients.db', uri=True)

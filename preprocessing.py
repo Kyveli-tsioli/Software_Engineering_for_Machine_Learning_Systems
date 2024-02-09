@@ -27,7 +27,7 @@ def preprocess(system_dict, database_dict):
         The returned array will be of the form: [age, sex, min_measurement, mean_measurement, new_measurement]
         where:
         - 'age': The patient's age (type: float)
-        - 'sex': The patient's sex (type: str)
+        - 'sex': The patient's sex (type: int)
         - 'min_measurement': The patient's minimum measurement based on their health record (type: float)
         - 'mean_measurement': The patient's mean measurement based on their health record (type: float)
         - 'new_measurement': The patient's latest measurement (type: float)
@@ -36,7 +36,7 @@ def preprocess(system_dict, database_dict):
     
     if system_dict.get('type')== 'LIMS': #Identify if PAS or LIMS 
 
-        #Assuming datetime objects in both PAS and SQLite,  %Y%m%d%H%M' format in LIMS (testtime), '%Y%m%d' in SQLite (dob)
+        #Assuming datetime objects in both PAS and SQLite, '%Y%m%d%H%M%S' format in LIMS (testtime), '%Y%m%d' in SQLite (dob)
         age= int((system_dict.get('time') - database_dict.get('dob')).days/365) 
         
 
@@ -81,8 +81,8 @@ def preprocess(system_dict, database_dict):
             "sex": sex, 
             ##"min": database_dict.get('min_measurement'),
             ##"mean": database_dict.get('mean_measurement'),
-            "prev_result": prev_result,
-            "latest_result": latest_result
+            "latest_result": latest_result,
+            "prev_result": prev_result
             } #feed this to the model by first converting it to a numpy array
 
     elif system_dict.get('type')== 'PAS':

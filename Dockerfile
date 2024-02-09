@@ -4,7 +4,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python3
 COPY requirements.txt /model/
 RUN pip3 install -r /model/requirements.txt
 COPY model/train.py /model/
-COPY model/trained_model.sav /model/
+COPY model/trained_model_rf.sav /model/
 
 COPY parse.py /client/
 COPY database/patients.db /client/
