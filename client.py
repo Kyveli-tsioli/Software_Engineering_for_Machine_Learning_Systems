@@ -94,20 +94,31 @@ class Client():
             c.execute("SELECT * FROM patients WHERE _mrn=:_mrn",
                       {'_mrn': _mrn})
             patient_data = dict(c.fetchall()[0])
-            c.execute("SELECT MIN(value) AS min_measurement,"
-                      " AVG(value) AS mean_measurement, COUNT(value) AS num_of_tests"
-                      " FROM measurements WHERE _mrn=:_mrn", {'_mrn': _mrn})
+            # c.execute("SELECT MIN(value) AS min_measurement,"
+            #           " AVG(value) AS mean_measurement, COUNT(value) AS num_of_tests"
+            #           " FROM measurements WHERE _mrn=:_mrn", {'_mrn': _mrn})
+            c.execute("SELECT value AS latest_measurement"
+                      " FROM measurements WHERE _mrn=:_mrn"
+                      " ORDER BY date DESC"
+                      " LIMIT 1"
+                      , {'_mrn': _mrn})
             patient_history = dict(c.fetchall()[0])
             if patient_data['dob'] != None:
                 patient_data['dob'] = datetime.strptime(patient_data['dob'],
                                                         '%Y-%m-%d %H:%M:%S')
+            # db_dict = {
+            #     'mrn': patient_data['_mrn'],
+            #     'dob': patient_data['dob'],
+            #     'sex': patient_data['sex'],
+            #     'min_measurement': patient_history['min_measurement'],
+            #     'mean_measurement': patient_history['mean_measurement'],
+            #     'num_of_tests': patient_history['num_of_tests']
+            # }
             db_dict = {
                 'mrn': patient_data['_mrn'],
                 'dob': patient_data['dob'],
                 'sex': patient_data['sex'],
-                'min_measurement': patient_history['min_measurement'],
-                'mean_measurement': patient_history['mean_measurement'],
-                'num_of_tests': patient_history['num_of_tests']
+                'latest_measurement': patient_history['latest_measurement']
             }
         return db_dict
 
