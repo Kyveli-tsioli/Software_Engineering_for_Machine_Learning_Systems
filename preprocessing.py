@@ -47,36 +47,42 @@ def preprocess(system_dict, database_dict):
 
 
         #Check existence of historical data in SQLite, if values are set to 'None' then replace them with the last measurement from LIMS
-        min_measurement, mean_measurement = database_dict.get('min_measurement'), database_dict.get('mean_measurement')
-        all_none= all(value is None for value in [min_measurement, mean_measurement])
+        ##min_measurement, mean_measurement = database_dict.get('min_measurement'), database_dict.get('mean_measurement')
+        ##all_none= all(value is None for value in [min_measurement, mean_measurement])
 
-        # historical_data=list(database_dict.values())[-3:] #assumming the database dictionary keys are stored in this exact order
         # all_none= all(value is None for value in historical_data)
         # min_measurement = database_dict.get('min_measurement')
         # mean_measurement = database_dict.get('mean_measurement')
-        new_measurement= system_dict.get('result')
+        latest_result= system_dict.get('result')
+        prev_result= database_dict.get('last_measurement') #the current last measurement which will turn into previous_measurement
 
-        if all_none:
-            for key in ['min_measurement', 'mean_measurement']:
-                database_dict[key]= new_measurement
-            database_dict['num_of_tests'] = 1 #access the last key of the dictionary and set its value to 1
-        else:
+
+        if prev_result==None:
+            prev_result= latest_result 
+ 
+
+        ##if all_none:
+            ##for key in ['min_measurement', 'mean_measurement']:
+                ##database_dict[key]= new_measurement
+            ##database_dict['num_of_tests'] = 1 #access the last key of the dictionary and set its value to 1
+        ##else:
             #Retrieve latest (new) measurement
-            num_of_tests = database_dict.get('num_of_tests')  # Provide default value to avoid NoneType
+            ##num_of_tests = database_dict.get('num_of_tests')  # Provide default value to avoid NoneType
 
             #Update mean and min values and number of tests taken (in database)
-            mean_measurement = (num_of_tests * mean_measurement + new_measurement) / (num_of_tests + 1)
-            database_dict.update({'mean_measurement': mean_measurement})
-            min_measurement = min(database_dict.get('min_measurement'), new_measurement) #retrieves the min_measurement from database, using "new_measurement" as the default value if min_measurement doesn't exist in the dict
-            database_dict.update({'min_measurement': min_measurement})
-            database_dict.update({'num_of_tests': num_of_tests+1 })
-        # print("edw", database_dict)
+            ##mean_measurement = (num_of_tests * mean_measurement + new_measurement) / (num_of_tests + 1)
+            ##database_dict.update({'mean_measurement': mean_measurement})
+            ##min_measurement = min(database_dict.get('min_measurement'), new_measurement) #retrieves the min_measurement from database, using "new_measurement" as the default value if min_measurement doesn't exist in the dict
+            ##database_dict.update({'min_measurement': min_measurement})
+            ##database_dict.update({'num_of_tests': num_of_tests+1 })
+  
         return {
             "age": age,
             "sex": sex, 
-            "min": database_dict.get('min_measurement'),
-            "mean": database_dict.get('mean_measurement'),
-            "new measurement": system_dict.get('result')
+            ##"min": database_dict.get('min_measurement'),
+            ##"mean": database_dict.get('mean_measurement'),
+            "prev_result": prev_result,
+            "latest_result": latest_result
             } #feed this to the model by first converting it to a numpy array
 
     elif system_dict.get('type')== 'PAS':
