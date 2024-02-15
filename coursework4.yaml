@@ -29,7 +29,7 @@ spec:
       containers:
       - name: aki-detection
         image: imperialswemlsspring2024.azurecr.io/coursework4-mimico
-        command: ["python3 /client/client.py"]
+        command: ["python3", "/client/client.py"]
         args:
         - "--history=/hospital-history/history.csv"
         env:
@@ -37,6 +37,8 @@ spec:
           value: mimico-simulator.hospital:8440
         - name: PAGER_ADDRESS
           value: mimico-simulator.hospital:8441
+        - name: PYTHONUNBUFFERED
+          value: "1"
         volumeMounts:
           - mountPath: "/hospital-history"
             name: hospital-history
