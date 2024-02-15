@@ -157,9 +157,12 @@ def split_host_port(string):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--history", default="/data/history.csv", help="HL7 messages to replay, in MLLP format")
+    flags = parser.parse_args()
     mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
     pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
-    database_load('/data/history.csv')
+    database_load(flags.history)
     client = Client()
     client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
 
