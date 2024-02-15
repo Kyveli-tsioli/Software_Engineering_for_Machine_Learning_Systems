@@ -19,4 +19,4 @@ EXPOSE 8441
 ENV MLLP_ADDRESS="host.docker.internal:8440"
 ENV PAGER_ADDRESS="host.docker.internal:8441"
 RUN chmod +x /client/client.py
-CMD ["python3", "/client/client.py"]
+CMD ["python3", "/client/client.py --history=/hospital-history/history.csv"]
