@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 def database_load(history_path):
-    conn = sqlite3.connect('./state/patients.db', uri=True)
+    conn = sqlite3.connect('/state/patients.db', uri=True)
 
     c = conn.cursor()
 
