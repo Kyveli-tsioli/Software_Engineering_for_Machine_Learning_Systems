@@ -43,6 +43,8 @@ spec:
           - mountPath: "/hospital-history"
             name: hospital-history
             readOnly: true
+          - mountPath: "/state"
+            name: aki-detection-state
         resources:
           requests:
             memory: 1Gi
@@ -53,8 +55,6 @@ spec:
         volumeMounts:
           - mountPath: "/hospital-history"
             name: hospital-history
-          - mountPath: "/state"
-            name: aki-detection-state
         resources:
           requests:
             memory: 1Gi

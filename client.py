@@ -35,7 +35,7 @@ class Client():
             trained_model = pickle.load(open('./model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
             # connect with database containing historical data
-            conn = sqlite3.connect('./state/patients.db', uri=True)
+            conn = sqlite3.connect('/state/patients.db', uri=True)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             while True:
@@ -167,11 +167,12 @@ def main():
     mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
     pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
 
-    db_path = './state/patients.db'
+    db_path = '/state/patients.db'
     if os.path.exists(db_path):
-        pass
+        print("Database already exists.")
     else:
         database_load(flags.history)
+        print("Database created and loaded with historical data.")
     client = Client()
     client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
 
