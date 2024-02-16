@@ -29,6 +29,7 @@ class Client():
 
     def connect_to_server(self, host, port, pager_host, pager_port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            total_ack = 0
             # load pre-trained model for inference
             trained_model = pickle.load(open('./model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
@@ -43,23 +44,25 @@ class Client():
                     break
                 parsed_dict = parse_hl7_message(data)
                 # Disregard discharge messages that return None
-                if parsed_dict != None:
-                    if parsed_dict["type"] == 'PAS':
-                        # Save information to database
-                        self.save_query_db(conn, c, parsed_dict)
-                    elif parsed_dict["type"] == 'LIMS':
-                        # Retrieve patient information from database using "mrn"
-                        dict = self.retrieve_query_db(conn, c, parsed_dict["mrn"])
-                        features = preprocess(parsed_dict, dict)
-                        features = np.array(list(features.values())).reshape(1,-1)
-                        prediction = 'n' if trained_model.predict(features)==0 else 'y'
-                        if prediction == 'y':
-                            # Send page request if inferred AKI
-                            page_request(pager_host, pager_port, bytes(str(parsed_dict["mrn"]), "ascii"))
-                        # Update test result to database
-                        self.update_query_db(conn, c, parsed_dict)
+                # if parsed_dict != None:
+                if parsed_dict["type"] == 'PAS':
+                    # Save information to database
+                    self.save_query_db(conn, c, parsed_dict)
+                elif parsed_dict["type"] == 'LIMS':
+                    # Retrieve patient information from database using "mrn"
+                    dict = self.retrieve_query_db(conn, c, parsed_dict["mrn"])
+                    features = preprocess(parsed_dict, dict)
+                    features = np.array(list(features.values())).reshape(1,-1)
+                    prediction = 'n' if trained_model.predict(features)==0 else 'y'
+                    if prediction == 'y':
+                        # Send page request if inferred AKI
+                        page_request(pager_host, pager_port, bytes(str(parsed_dict["mrn"]), "ascii"))
+                    # Update test result to database
+                    self.update_query_db(conn, c, parsed_dict) 
                 # Send message acknowledgement to server
                 msg = self.create_message("AA")
+                total_ack += 1
+                print("Sent ACK for {}. Total ACK: {}".format(parsed_dict["mrn"], total_ack))
                 s.sendall(msg)
             conn.close()
 
