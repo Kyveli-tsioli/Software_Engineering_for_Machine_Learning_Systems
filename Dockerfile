@@ -10,7 +10,6 @@ COPY model/trained_model_rf.sav model/
 COPY data/history.csv /data/
 COPY database_load.py /client/
 COPY parse.py /client/
-COPY patients.db /client/
 COPY preprocessing.py /client/
 COPY client.py /client/
 

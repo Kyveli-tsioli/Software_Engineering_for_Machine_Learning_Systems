@@ -3,12 +3,12 @@ import csv
 from datetime import datetime
 
 def database_load(history_path):
-    conn = sqlite3.connect('./patients.db', uri=True)
+    conn = sqlite3.connect('./state/patients.db', uri=True)
 
     c = conn.cursor()
 
-    c.execute("""DROP TABLE patients""")
-    c.execute("""DROP TABLE measurements""")
+    # c.execute("""DROP TABLE patients""")
+    # c.execute("""DROP TABLE measurements""")
     c.execute("""CREATE TABLE patients (
                 _mrn integer,
                 dob text,
