@@ -45,11 +45,11 @@ def parse_hl7_message(hl7_message: str) -> dict:
             return {'type': 'LIMS', 'mrn': pid3, 'time': obr7, 'result': obx5}
         else:
             # Not creatinine, ignore
-            return None
+            return {'type': 'NON_CREAT', 'mrn': pid3}
         
     else:
         # Not ADT^01 or ORU^01, ignore
-        return None
+        return {'type': 'OTHERS', 'mrn': pid3}
 
 if __name__ == "__main__":
     # Below just for testing
