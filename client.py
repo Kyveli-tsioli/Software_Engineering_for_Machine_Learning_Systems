@@ -16,6 +16,7 @@ import argparse
 import sqlite3
 import pickle
 import numpy as np
+import os.path
 
 
 MLLP_BUFFER_SIZE = 1024
@@ -34,7 +35,7 @@ class Client():
             trained_model = pickle.load(open('./model/trained_model_rf.sav', 'rb'))
             s.connect((host, port))
             # connect with database containing historical data
-            conn = sqlite3.connect('./patients.db', uri=True)
+            conn = sqlite3.connect('./state/patients.db', uri=True)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             while True:
@@ -165,7 +166,12 @@ def main():
     flags = parser.parse_args()
     mllp_host, mllp_port = split_host_port(os.environ['MLLP_ADDRESS'])
     pager_host, pager_port = split_host_port(os.environ['PAGER_ADDRESS'])
-    database_load(flags.history)
+
+    db_path = './state/patients.db'
+    if os.path.exists(db_path):
+        pass
+    else:
+        database_load(flags.history)
     client = Client()
     client.connect_to_server(mllp_host, mllp_port, pager_host, pager_port)
 
