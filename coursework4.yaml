@@ -34,9 +34,9 @@ spec:
         - "--history=/hospital-history/history.csv"
         env:
         - name: MLLP_ADDRESS
-          value: mimico-simulator.hospital:8440
+          value: mimico-simulator.coursework5:8440
         - name: PAGER_ADDRESS
-          value: mimico-simulator.hospital:8441
+          value: mimico-simulator.coursework5:8441
         - name: PYTHONUNBUFFERED
           value: "1"
         volumeMounts:
@@ -51,7 +51,7 @@ spec:
             cpu: 1
       initContainers:
       - name: copy-hospital-history
-        image: imperialswemlsspring2024.azurecr.io/coursework4-history
+        image: imperialswemlsspring2024.azurecr.io/coursework5-history
         volumeMounts:
           - mountPath: "/hospital-history"
             name: hospital-history
