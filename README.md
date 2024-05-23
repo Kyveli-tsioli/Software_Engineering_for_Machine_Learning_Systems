@@ -8,7 +8,7 @@ creatinine measurement for each patient. The code for training is located at ```
 The trained model is stored  in ```model/trained_model.sav```.
 
 By splitting the training dataset in 80%-20% for training and test examples, the model showed an F3 score
-of approximately 99%.
+of 88%, against the 73% achieved with the official NHS algorithm.
 
 ### Inference
 
